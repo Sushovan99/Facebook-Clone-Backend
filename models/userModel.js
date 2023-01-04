@@ -159,6 +159,14 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.methods.isPasswordValid = async function (
+  userPassword,
+  savedPassword
+) {
+  // Paramters Order is important
+  return await bcrypt.compare(userPassword, savedPassword);
+};
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;

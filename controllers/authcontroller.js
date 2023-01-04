@@ -56,3 +56,39 @@ exports.verifyEmail = catchAsyncError(async (req, res, next) => {
     message: 'Your email has been verified & your account is activated.',
   });
 });
+
+exports.login = catchAsyncError(async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    return next(
+      new AppError(
+        404,
+        'The email address you entered is not connected to an account.'
+      )
+    );
+  }
+
+  const isPasswordValid = await user.isPasswordValid(password, user.password);
+
+  if (!isPasswordValid) {
+    return next(new AppError(401, 'Invalid credentials. Please try again.'));
+  }
+
+  const token = generateToken(user._id, '7d');
+
+  res.status(200).json({
+    status: 'success',
+    token,
+    data: {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      userName: user.userName,
+      picture: user.picture,
+      verified: user.verified,
+      message: 'Signup successful! Please verify your email to start.',
+    },
+  });
+});

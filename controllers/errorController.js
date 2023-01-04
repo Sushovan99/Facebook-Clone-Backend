@@ -23,6 +23,8 @@ const handleDuplicateKeyError = (err) => {
   );
 };
 
+const handleTokenExpiredError = (err) => new AppError(400, err.message);
+
 const sendProdError = (res, err) => {
   if (err.isOperational) {
     res.status(err.statusCode).json({
@@ -49,6 +51,8 @@ module.exports = (err, req, res, next) => {
 
     if (error.code === 11000) error = handleDuplicateKeyError(error);
     if (error.name === 'ValidationError') error = handleValidationError(error);
+    if (error.name === 'TokenExpiredError')
+      error = handleTokenExpiredError(error);
 
     sendProdError(res, error);
   }
