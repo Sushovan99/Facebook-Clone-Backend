@@ -1,3 +1,5 @@
+const AppError = require('../utils/appError');
+
 const sendDevError = (res, err) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -5,6 +7,20 @@ const sendDevError = (res, err) => {
     stack: err.stack,
     error: err,
   });
+};
+
+const handleValidationError = (err) => {
+  const key = Object.keys(err.errors);
+  const { message } = err.errors[key[0]];
+  return new AppError(400, message);
+};
+
+const handleDuplicateKeyError = (err) => {
+  const [key] = Object.keys(err.keyValue);
+  return new AppError(
+    400,
+    `${key} already exists, try with a different ${key}`
+  );
 };
 
 const sendProdError = (res, err) => {
@@ -17,7 +33,7 @@ const sendProdError = (res, err) => {
     console.error('ERROR 💥', err);
     res.status(500).json({
       status: 'fail',
-      message: 'Something went wrong',
+      message: 'Internal Server Error',
     });
   }
 };
@@ -29,7 +45,11 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendDevError(res, err);
   } else if (process.env.NODE_ENV === 'production') {
-    const error = Object.assign(err);
+    let error = Object.assign(err);
+
+    if (error.code === 11000) error = handleDuplicateKeyError(error);
+    if (error.name === 'ValidationError') error = handleValidationError(error);
+
     sendProdError(res, error);
   }
 };
