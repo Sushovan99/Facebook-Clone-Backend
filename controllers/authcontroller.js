@@ -28,14 +28,14 @@ exports.signup = catchAsyncError(async (req, res, next) => {
   res.status(201).json({
     status: 'success',
     token,
-    data: {
+    message: 'Signup successful! Please verify your email to start.',
+    user: {
       id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       userName: user.userName,
       picture: user.picture,
       verified: user.verified,
-      message: 'Signup successful! Please verify your email to start.',
     },
   });
 });
@@ -76,7 +76,7 @@ exports.login = catchAsyncError(async (req, res, next) => {
     return next(new AppError(401, 'Invalid credentials. Please try again.'));
   }
 
-  const token = generateToken(user._id, '7d');
+  const token = await generateToken(user._id, '7d');
 
   res.status(200).json({
     status: 'success',

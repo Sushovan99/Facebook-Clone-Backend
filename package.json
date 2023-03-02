@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "SET NODE_ENV=production&&node server.js"
+    "start:prod": "SET NODE_ENV=production&&nodemon server.js"
   },
   "keywords": [],
   "author": "",
