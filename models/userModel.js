@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema(
     picture: {
       type: String,
       trim: true,
-      default: 'image.jpg',
+      default: 'https://avatarfiles.alphacoders.com/322/322260.jpg',
     },
     cover: {
       type: String,
